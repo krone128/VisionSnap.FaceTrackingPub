@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using Unity.Collections;
 using UnityEngine;
-using VisionSnap.FaceTracking.Interface;
 
 namespace VisionSnap.FaceTracking
 {
@@ -18,8 +16,8 @@ namespace VisionSnap.FaceTracking
         [SerializeField] protected float _blendshapeScale = 100f;
         [SerializeField] protected int _faceIndex = 0;
         
-        protected NativeArray<float> Blendshapes;
-        protected NativeArray<float> TransformationMatrices;
+        protected IReadOnlyList<float> Blendshapes;
+        protected IReadOnlyList<float> TransformationMatrices;
         protected IList<int> BlendShapeMapping;
 
         protected bool IsFrameAvailable;
@@ -115,20 +113,20 @@ namespace VisionSnap.FaceTracking
 
         protected virtual void OnFaceDetectionResult(FaceDetectionResultBuffers result)
         {
-            Blendshapes = result.Blendshapes.GetSubArray(_faceIndex * Constants.BLENDSHAPE_COUNT, Constants.BLENDSHAPE_COUNT);
-            TransformationMatrices = result.TransformationMatrices.GetSubArray(_faceIndex * Constants.MATRIX_COUNT, Constants.MATRIX_COUNT);
+            Blendshapes = result.Blendshapes;
+            TransformationMatrices = result.TransformationMatrices;
             IsFrameAvailable = true;
         }
         
         protected virtual void OnFaceDetectionError(string message) => Debug.LogError(message);
         
-        protected virtual void SetBlendShapes(NativeArray<float> blendShapesArray)
+        protected virtual void SetBlendShapes(IReadOnlyList<float> blendShapesArray)
         {
             if(!_skinnedMeshRenderer) return;
 
             var offset = _faceIndex * Constants.BLENDSHAPE_COUNT;
             
-            for (var i = 0; i < blendShapesArray.Length; i++)
+            for (var i = 0; i < blendShapesArray.Count; i++)
             {
                 if(BlendShapeMapping[i] < 0) continue;
                 _skinnedMeshRenderer.SetBlendShapeWeight(BlendShapeMapping[i], blendShapesArray[offset + i] * _blendshapeScale);

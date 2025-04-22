@@ -1,5 +1,4 @@
 ﻿using System;
-using VisionSnap.FaceTracking.Interface;
 
 namespace VisionSnap.FaceTracking
 {
@@ -45,13 +44,13 @@ namespace VisionSnap.FaceTracking
             // 17 - eyeLookUpLe
             // 18 - eyeLookUpRight
 
-            for (var i = 0; i < result.FacesCount; i++)
-            {
-                result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 12] = result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 11];
-                result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 14] = result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 15];
-                result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 16] = result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 13];
-                result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 18] = result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 17];
-            }
+            // for (var i = 0; i < result.FacesCount; i++)
+            // {
+            //     result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 12] = result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 11];
+            //     result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 14] = result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 15];
+            //     result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 16] = result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 13];
+            //     result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 18] = result.Blendshapes[Constants.BLENDSHAPE_COUNT * i + 17];
+            // }
 
             FaceDetectionResult?.Invoke(result);
         }

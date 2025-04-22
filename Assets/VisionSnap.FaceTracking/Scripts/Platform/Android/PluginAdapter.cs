@@ -1,7 +1,6 @@
 using System;
 using JetBrains.Annotations;
 using UnityEngine;
-using VisionSnap.FaceTracking.Interface;
 
 namespace VisionSnap.FaceTracking.Android
 {

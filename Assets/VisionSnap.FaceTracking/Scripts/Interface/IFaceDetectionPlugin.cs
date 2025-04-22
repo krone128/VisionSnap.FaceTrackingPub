@@ -1,6 +1,6 @@
 using System;
 
-namespace VisionSnap.FaceTracking.Interface
+namespace VisionSnap.FaceTracking
 {
     public interface IFaceDetectionPlugin : IFaceDetectionCallbacks, IFaceDetectionPluginControls
     {

@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using VisionSnap.FaceTracking.Interface;
 
 namespace VisionSnap.FaceTracking.Examples
 {

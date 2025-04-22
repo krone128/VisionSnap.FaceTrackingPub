@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AOT;
-using VisionSnap.FaceTracking.Interface;
 
 namespace VisionSnap.FaceTracking.iOS
 {

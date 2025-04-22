@@ -1,6 +1,6 @@
 using System;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace VisionSnap.FaceTracking
 {
@@ -10,9 +10,13 @@ namespace VisionSnap.FaceTracking
 
         public int FacesCount;
         
-        public NativeArray<float> Landmarks;
-        public NativeArray<float> Blendshapes;
-        public NativeArray<float> TransformationMatrices;
+        // public NativeArray<float> Landmarks;
+        // public NativeArray<float> Blendshapes;
+        // public NativeArray<float> TransformationMatrices;
+        
+        public IReadOnlyList<float> Landmarks {get; private set;}
+        public IReadOnlyList<float> Blendshapes {get; private set;}
+        public IReadOnlyList<float> TransformationMatrices {get; private set;}
 
         public FaceDetectionResultBuffers(
             int facesCount,
@@ -23,49 +27,68 @@ namespace VisionSnap.FaceTracking
             int transformMatrixArrayLength,
             long transformMatrixArrayAddress)
         {
-            FacesCount = facesCount;
+            facesCount = Math.Max(facesCount, 1);
+            Landmarks = new PointerBuffer<float>(landmarkArrayAddress, landmarkArrayLength);
+            Blendshapes = new PointerBuffer<float>(blendshapeArrayAddress, blendshapeArrayLength);
+            TransformationMatrices = new PointerBuffer<float>(transformMatrixArrayAddress, transformMatrixArrayLength);
+        }
+     }
 
-            if (FacesCount == 0) return;
+    public unsafe class PointerBuffer<T> : IReadOnlyList<float> where T : unmanaged
+    {
+        private readonly T* _pointer;
+        
+        public PointerBuffer(long address, int length)
+        {
+            Count = length;
+            _pointer = (T*)new IntPtr(address).ToPointer();
+        }
 
-            if (landmarkArrayLength > 0)
-            {
-                unsafe
-                {
-                    Landmarks = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float>(
-                        new IntPtr(landmarkArrayAddress).ToPointer(), landmarkArrayLength, Allocator.None);
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-                    NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref Landmarks,
-                        AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
-#endif
-                }
-            }
+        public T this[int index] => *(_pointer + index);
+        
+        public IEnumerator<float> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
 
-            if (blendshapeArrayLength > 0)
-            {
-                unsafe
-                {
-                    Blendshapes = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float>(
-                        new IntPtr(blendshapeArrayAddress).ToPointer(), blendshapeArrayLength, Allocator.None);
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-                    NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref Blendshapes,
-                        AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
-#endif
-                }
-            }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
-            if (transformMatrixArrayLength > 0)
-            {
-                unsafe
-                {
-                    TransformationMatrices = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float>(
-                        new IntPtr(transformMatrixArrayAddress).ToPointer(), transformMatrixArrayLength,
-                        Allocator.None);
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-                    NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref TransformationMatrices,
-                        AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
-#endif
-                }
-            }
+        public int Count { get; private set; }
+
+        float IReadOnlyList<float>.this[int index] => throw new NotImplementedException();
+    }
+
+    public class PointerBufferEnumerator<T> : IEnumerator<T> where T : unmanaged
+    {
+        private int _currentIndex;
+        
+        private readonly PointerBuffer<T> _collection;
+
+        public PointerBufferEnumerator(PointerBuffer<T> collection)
+        {
+            _collection = collection;
+        }
+         
+        public bool MoveNext()
+        {
+            return ++_currentIndex >= _collection.Count;
+        }
+
+        public void Reset()
+        {
+            _currentIndex = 0;
+        }
+
+        public T Current => _collection[_currentIndex];
+
+        object IEnumerator.Current => Current;
+
+        public void Dispose()
+        {
+            
         }
     }
 }
